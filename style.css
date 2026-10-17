@@ -1,218 +1,420 @@
-EduRisk Analytics - Lab 03
-External CSS Design
-Theme: Dark Blue, Sky Blue, and White
-Font: Times New Roman
-========================================================== */
+/*
+  EDURISK ANALYTICS — Student Performance & Risk Analysis
+  Theme: Dark Blue • Sky Blue • White
+  Font: Times New Roman
+  Styling only — does not change Python functionality.
+*/
 
+/* ---------- 1. Design tokens ---------- */
+:root {
+    --navy-900: #0B2942;
+    --navy-700: #123B5D;
+    --blue-600: #176B9A;
+    --teal-600: #0D9488;
+    --sky-400: #38BDF8;
+    --sky-200: #BAE6FD;
+    --sky-100: #E0F2FE;
 
-/* 1. GLOBAL FONT
-   Apply Times New Roman to the main application. */
-html,
-body,
-[class*="css"],
-[data-testid="stAppViewContainer"] {
-    font-family: "Times New Roman", Times, serif !important;
+    --page-bg: #F0F9FF;
+    --card-bg: #FFFFFF;
+    --text: #183247;
+    --text-muted: #526779;
+    --border: #BAE6FD;
+
+    --risk-high: #DC2626;
+    --risk-medium: #A16207;
+    --risk-low: #16A34A;
+
+    --font-main: "Times New Roman", Times, serif;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --shadow-card: 0 1px 2px rgba(18, 59, 93, 0.06), 0 4px 14px rgba(18, 59, 93, 0.06);
 }
 
-/* 2. STREAMLIT ICONS
-   Preserve the original font used by Streamlit icons. */
-.material-icons,
-.material-symbols-rounded,
-.material-symbols-outlined,
-[data-testid="stIconMaterial"] {
-    font-family: "Material Symbols Rounded", "Material Icons" !important;
-    font-weight: normal !important;
-    font-style: normal !important;
+/* ---------- 2. Base: page, font, text ---------- */
+/* Font is set on the app root and inherited, so Streamlit's icon fonts stay intact. */
+.stApp {
+    font-family: var(--font-main);
+    background: var(--page-bg);
+    color: var(--text);
 }
 
-/* 3. MAIN APP BACKGROUND
-   Use a light sky-blue background for the main page. */
-.stApp,
-[data-testid="stMain"] {
-    background-color: #F0F9FF;
+/* Form controls don't inherit fonts by default */
+.stApp button,
+.stApp input,
+.stApp textarea,
+.stApp select {
+    font-family: var(--font-main) !important;
 }
 
-/* 4. SIDEBAR DESIGN
-   Give the navigation sidebar a dark blue background. */
+.stApp p,
+.stApp li {
+    font-size: 1.06rem;
+    line-height: 1.7;
+}
+
+[data-testid="stCaptionContainer"],
+[data-testid="stCaptionContainer"] p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+/* Main content width and spacing */
+[data-testid="stMainBlockContainer"],
+.block-container {
+    max-width: 1280px;
+    padding: 2.4rem 2.4rem 3rem;
+}
+
+/* Top bar blends into the page */
+[data-testid="stHeader"] {
+    background: transparent;
+}
+
+/* Times New Roman on all text elements.
+   A list of real text tags is used (not "*") so Streamlit's icon glyphs are never touched. */
+.stApp p,
+.stApp li,
+.stApp a,
+.stApp label,
+.stApp summary,
+.stApp td,
+.stApp th,
+.stApp code,
+.stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6,
+.stApp [data-testid="stMarkdownContainer"],
+.stApp [data-testid="stCaptionContainer"],
+.stApp [data-testid="stWidgetLabel"],
+.stApp [data-testid="stMetricLabel"],
+.stApp [data-testid="stMetricValue"],
+.stApp [data-testid="stAlert"],
+.stApp [data-testid="stText"] {
+    font-family: var(--font-main) !important;
+}
+
+/* ---------- 3. Headings ---------- */
+.stApp h1,
+.stApp h2,
+.stApp h3,
+.stApp h4 {
+    font-family: var(--font-main);
+    color: var(--navy-700);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+.stApp h1 { font-size: clamp(2rem, 3vw, 2.6rem); }
+.stApp h2 { font-size: clamp(1.45rem, 2vw, 1.8rem); }
+.stApp h3 { font-size: clamp(1.2rem, 1.6vw, 1.4rem); }
+
+/* Page title: one short sky-blue rule — the single signature accent */
+[data-testid="stMainBlockContainer"] h1::after,
+.block-container h1::after {
+    content: "";
+    display: block;
+    width: 64px;
+    height: 4px;
+    margin-top: 0.6rem;
+    border-radius: 2px;
+    background: var(--sky-400);
+}
+
+/* ---------- 4. Sidebar ---------- */
 [data-testid="stSidebar"] {
-    background-color: #123B5D;
+    background: linear-gradient(180deg, var(--navy-700) 0%, var(--navy-900) 100%);
+    border-right: 1px solid #0A2438;
 }
 
-/* Make sidebar text white for contrast. */
-[data-testid="stSidebar"] * {
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+    color: #FFFFFF;
+}
+[data-testid="stSidebar"] h1 {
+    font-size: 1.7rem;
+    letter-spacing: 0;
+}
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {
+    color: #BFE6FA;
+}
+[data-testid="stSidebar"] hr {
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Sidebar collapse button: always visible, white on the dark blue background */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarHeader"] button {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+[data-testid="stSidebar"] button,
+[data-testid="stSidebar"] button * {
     color: #FFFFFF !important;
 }
-
-/* Increase the navigation label size. */
-[data-testid="stSidebar"] label {
-    font-size: 17px;
+[data-testid="stSidebar"] button:hover {
+    background: rgba(255, 255, 255, 0.14) !important;
+}
+[data-testid="stSidebar"] button:focus-visible {
+    outline: 3px solid var(--sky-400);
+    outline-offset: 2px;
 }
 
-/* 5. PAGE HEADINGS
-   Use dark blue for titles and section headings. */
-h1,
-h2,
-h3 {
-    color: #123B5D !important;
-    font-family: "Times New Roman", Times, serif !important;
-    font-weight: bold;
+/* Navigation items (the radio options) */
+[data-testid="stSidebar"] [data-testid="stRadio"] label {
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid transparent;
+    transition: background-color 0.15s ease;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+/* Selected page */
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
+    background: rgba(56, 189, 248, 0.2);
+    border-left-color: var(--sky-400);
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) p {
+    font-weight: 700;
 }
 
-/* 6. NORMAL TEXT
-   Keep paragraphs and labels consistent with the theme. */
-p,
-label,
-span,
-div {
-    font-family: "Times New Roman", Times, serif;
-}
-
-/* 7. METRIC CARDS
-   Style dashboard cards such as Students and Average Score. */
+/* ---------- 5. Metric cards ---------- */
 [data-testid="stMetric"] {
-    background-color: #FFFFFF;
-    border: 1px solid #BAE6FD;
-    border-left: 5px solid #38BDF8;
-    padding: 18px;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(18, 59, 93, 0.08);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--sky-400);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.2rem;
+    box-shadow: var(--shadow-card);
 }
-
-/* Metric labels. */
-[data-testid="stMetricLabel"] {
-    color: #176B9A !important;
-    font-size: 16px;
+[data-testid="stMetricLabel"],
+[data-testid="stMetricLabel"] p {
+    color: var(--blue-600);
+    font-size: 0.95rem;
+    font-weight: 700;
 }
-
-/* Metric values. */
 [data-testid="stMetricValue"] {
-    color: #123B5D !important;
-    font-size: 28px;
-    font-weight: bold;
+    color: var(--navy-700);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+/* Long values (e.g. a student's name) wrap instead of being cut off */
+[data-testid="stMetricValue"] > div {
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
-/* 8. STANDARD BUTTONS
-   Style Streamlit buttons and form submit buttons. */
+/* Dashboard KPI row: each card gets its own accent colour */
+div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-child(1) [data-testid="stMetric"] { border-left-color: var(--sky-400); }
+div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-child(2) [data-testid="stMetric"] { border-left-color: var(--blue-600); }
+div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-child(3) [data-testid="stMetric"] { border-left-color: var(--teal-600); }
+div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-child(4) [data-testid="stMetric"] { border-left-color: var(--risk-high); }
+
+/* ---------- 6. Buttons ---------- */
 .stButton > button,
 [data-testid="stFormSubmitButton"] > button {
-    background-color: #176B9A;
+    background: var(--blue-600);
     color: #FFFFFF;
-    border: 1px solid #176B9A;
-    border-radius: 8px;
-    padding: 8px 20px;
-    font-family: "Times New Roman", Times, serif;
-    font-size: 16px;
-    font-weight: bold;
-    transition: background-color 0.2s ease;
+    border: 1px solid var(--blue-600);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 700;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
 }
-
-/* Darken buttons when the mouse hovers over them. */
 .stButton > button:hover,
 [data-testid="stFormSubmitButton"] > button:hover {
-    background-color: #123B5D;
+    background: var(--navy-700);
+    border-color: var(--navy-700);
     color: #FFFFFF;
-    border-color: #123B5D;
+}
+.stButton > button p,
+[data-testid="stFormSubmitButton"] > button p {
+    color: inherit;
+    font-weight: 700;
 }
 
-/* 9. DOWNLOAD BUTTON
-   Use sky blue to distinguish the CSV download action. */
+/* Download button: lighter, so it reads as a secondary action */
 .stDownloadButton > button {
-    background-color: #38BDF8;
-    color: #123B5D;
-    border: 1px solid #38BDF8;
-    border-radius: 8px;
-    padding: 8px 20px;
-    font-family: "Times New Roman", Times, serif;
-    font-size: 16px;
-    font-weight: bold;
+    background: var(--sky-100);
+    color: var(--navy-700);
+    border: 1px solid var(--sky-400);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 1.2rem;
+    font-weight: 700;
+    transition: background-color 0.15s ease;
 }
-
-/* Change the download button on hover. */
 .stDownloadButton > button:hover {
-    background-color: #176B9A;
-    color: #FFFFFF;
-    border-color: #176B9A;
+    background: var(--sky-400);
+    border-color: var(--sky-400);
+    color: var(--navy-900);
+}
+.stDownloadButton > button p {
+    color: inherit;
+    font-weight: 700;
 }
 
-/* 10. INPUT FIELDS
-   Round the corners of text, number, and selection inputs. */
+/* Visible keyboard focus */
+.stButton > button:focus-visible,
+[data-testid="stFormSubmitButton"] > button:focus-visible,
+.stDownloadButton > button:focus-visible {
+    outline: 3px solid var(--sky-400);
+    outline-offset: 2px;
+}
+
+/* ---------- 7. Inputs and the Risk Checker form ---------- */
+[data-testid="stForm"] {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+}
+
 .stTextInput input,
 .stNumberInput input,
-.stSelectbox div[data-baseweb="select"] {
-    border-radius: 8px;
+.stTextArea textarea {
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+}
+.stTextInput input:focus,
+.stNumberInput input:focus,
+.stTextArea textarea:focus {
+    border-color: var(--blue-600);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
 }
 
-/* 11. SLIDERS
-   Add spacing around slider controls. */
-.stSlider {
-    padding-top: 4px;
-    padding-bottom: 4px;
+/* Input labels */
+[data-testid="stWidgetLabel"] p {
+    color: var(--navy-700);
+    font-weight: 700;
+}
+/* …but keep sidebar labels white */
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] p {
+    color: #FFFFFF;
 }
 
-/* 12. DATA TABLES
-   Give student records a clean border and rounded corners. */
-[data-testid="stDataFrame"] {
-    border: 1px solid #BAE6FD;
-    border-radius: 10px;
+/* ---------- 8. Tables, code, charts ---------- */
+/* st.dataframe draws on a canvas, so only the frame can be styled with CSS */
+[data-testid="stDataFrame"],
+[data-testid="stTable"] {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+}
+
+/* st.table is a normal HTML table, so it uses Times New Roman */
+[data-testid="stTable"] {
+    overflow-x: auto;
+}
+[data-testid="stTable"] table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+}
+[data-testid="stTable"] th {
+    background: var(--sky-100);
+    color: var(--navy-700);
+    font-weight: 700;
+    text-align: left;
+    padding: 0.65rem 0.9rem;
+    border-bottom: 2px solid var(--sky-400);
+}
+[data-testid="stTable"] td {
+    padding: 0.55rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+}
+[data-testid="stTable"] tbody tr:hover {
+    background: #F5FBFF;
+}
+
+[data-testid="stCode"],
+[data-testid="stCode"] pre {
+    border-radius: var(--radius-sm);
+}
+
+/* Chart panels (series colours are set in Python, not CSS) */
+[data-testid="stVegaLiteChart"],
+[data-testid="stArrowVegaLiteChart"],
+[data-testid="stBarChart"],
+[data-testid="stLineChart"],
+[data-testid="stAreaChart"] {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+}
+
+/* ---------- 9. Alerts, expanders, dividers ---------- */
+[data-testid="stAlert"] {
+    border-radius: var(--radius-md);
+}
+[data-testid="stAlert"] p {
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
+[data-testid="stExpander"] {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
     overflow: hidden;
 }
-
-/* 13. CONTAINERS
-   Style bordered Streamlit sections. */
-[data-testid="stVerticalBlockBorderWrapper"] {
-    border-color: #BAE6FD;
-    border-radius: 12px;
+[data-testid="stExpander"] summary {
+    color: var(--navy-700);
+    font-weight: 700;
 }
 
-/* 14. DIVIDERS
-   Use a subtle blue line between page sections. */
 hr {
-    border-color: #BAE6FD;
+    border-color: var(--border);
 }
 
-/* 15. ALERT MESSAGES
-   Round the corners of success, warning, and error messages. */
-[data-testid="stAlert"] {
-    border-radius: 10px;
+/* ---------- 10. Optional risk badges (use with st.markdown + unsafe_allow_html) ---------- */
+.risk-low,
+.risk-medium,
+.risk-high {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 0.2rem 0.8rem;
+    font-weight: 700;
+    font-size: 0.9rem;
 }
+.risk-low    { background: #DCFCE7; color: #166534; border: 1px solid var(--risk-low); }
+.risk-medium { background: #FEF3C7; color: #854D0E; border: 1px solid var(--risk-medium); }
+.risk-high   { background: #FEE2E2; color: #991B1B; border: 1px solid var(--risk-high); }
 
-/* 16. FORMS
-   Give the Risk Checker form a white card appearance. */
-[data-testid="stForm"] {
-    background-color: #FFFFFF;
-    border: 1px solid #BAE6FD;
-    border-radius: 12px;
-    padding: 20px;
-}
+/* ---------- 11. Scrollbar ---------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--sky-200); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--sky-400); }
 
-/* 17. CHECKBOXES
-   Set checkbox labels to dark blue. */
-[data-testid="stCheckbox"] label {
-    color: #123B5D;
-}
-
-/* 18. EXPANDERS
-   Style expandable content with a white background. */
-[data-testid="stExpander"] {
-    background-color: #FFFFFF;
-    border: 1px solid #BAE6FD;
-    border-radius: 10px;
-}
-
-/* 19. DATAFRAME AND TABLE TEXT
-   Use dark blue for readable table text where supported. */
-[data-testid="stDataFrame"] [role="grid"] {
-    color: #123B5D;
-}
-
-/* 20. RESPONSIVE LAYOUT
-   Slightly reduce metric values on smaller screens. */
+/* ---------- 12. Small screens ---------- */
 @media (max-width: 768px) {
-    [data-testid="stMetricValue"] {
-        font-size: 22px;
+    [data-testid="stMainBlockContainer"],
+    .block-container {
+        padding: 1.4rem 1rem 2rem;
     }
+    .stApp p,
+    .stApp li { font-size: 1rem; }
+    [data-testid="stMetric"] { padding: 0.75rem 0.9rem; }
+    [data-testid="stMetricValue"] { font-size: 1.6rem; }
+}
 
-    [data-testid="stMetric"] {
-        padding: 12px;
+/* ---------- 13. Respect reduced-motion settings ---------- */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
     }
 }
