@@ -1,0 +1,218 @@
+EduRisk Analytics - Lab 03
+External CSS Design
+Theme: Dark Blue, Sky Blue, and White
+Font: Times New Roman
+========================================================== */
+
+
+/* 1. GLOBAL FONT
+   Apply Times New Roman to the main application. */
+html,
+body,
+[class*="css"],
+[data-testid="stAppViewContainer"] {
+    font-family: "Times New Roman", Times, serif !important;
+}
+
+/* 2. STREAMLIT ICONS
+   Preserve the original font used by Streamlit icons. */
+.material-icons,
+.material-symbols-rounded,
+.material-symbols-outlined,
+[data-testid="stIconMaterial"] {
+    font-family: "Material Symbols Rounded", "Material Icons" !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+}
+
+/* 3. MAIN APP BACKGROUND
+   Use a light sky-blue background for the main page. */
+.stApp,
+[data-testid="stMain"] {
+    background-color: #F0F9FF;
+}
+
+/* 4. SIDEBAR DESIGN
+   Give the navigation sidebar a dark blue background. */
+[data-testid="stSidebar"] {
+    background-color: #123B5D;
+}
+
+/* Make sidebar text white for contrast. */
+[data-testid="stSidebar"] * {
+    color: #FFFFFF !important;
+}
+
+/* Increase the navigation label size. */
+[data-testid="stSidebar"] label {
+    font-size: 17px;
+}
+
+/* 5. PAGE HEADINGS
+   Use dark blue for titles and section headings. */
+h1,
+h2,
+h3 {
+    color: #123B5D !important;
+    font-family: "Times New Roman", Times, serif !important;
+    font-weight: bold;
+}
+
+/* 6. NORMAL TEXT
+   Keep paragraphs and labels consistent with the theme. */
+p,
+label,
+span,
+div {
+    font-family: "Times New Roman", Times, serif;
+}
+
+/* 7. METRIC CARDS
+   Style dashboard cards such as Students and Average Score. */
+[data-testid="stMetric"] {
+    background-color: #FFFFFF;
+    border: 1px solid #BAE6FD;
+    border-left: 5px solid #38BDF8;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(18, 59, 93, 0.08);
+}
+
+/* Metric labels. */
+[data-testid="stMetricLabel"] {
+    color: #176B9A !important;
+    font-size: 16px;
+}
+
+/* Metric values. */
+[data-testid="stMetricValue"] {
+    color: #123B5D !important;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* 8. STANDARD BUTTONS
+   Style Streamlit buttons and form submit buttons. */
+.stButton > button,
+[data-testid="stFormSubmitButton"] > button {
+    background-color: #176B9A;
+    color: #FFFFFF;
+    border: 1px solid #176B9A;
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+}
+
+/* Darken buttons when the mouse hovers over them. */
+.stButton > button:hover,
+[data-testid="stFormSubmitButton"] > button:hover {
+    background-color: #123B5D;
+    color: #FFFFFF;
+    border-color: #123B5D;
+}
+
+/* 9. DOWNLOAD BUTTON
+   Use sky blue to distinguish the CSV download action. */
+.stDownloadButton > button {
+    background-color: #38BDF8;
+    color: #123B5D;
+    border: 1px solid #38BDF8;
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Change the download button on hover. */
+.stDownloadButton > button:hover {
+    background-color: #176B9A;
+    color: #FFFFFF;
+    border-color: #176B9A;
+}
+
+/* 10. INPUT FIELDS
+   Round the corners of text, number, and selection inputs. */
+.stTextInput input,
+.stNumberInput input,
+.stSelectbox div[data-baseweb="select"] {
+    border-radius: 8px;
+}
+
+/* 11. SLIDERS
+   Add spacing around slider controls. */
+.stSlider {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+/* 12. DATA TABLES
+   Give student records a clean border and rounded corners. */
+[data-testid="stDataFrame"] {
+    border: 1px solid #BAE6FD;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* 13. CONTAINERS
+   Style bordered Streamlit sections. */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border-color: #BAE6FD;
+    border-radius: 12px;
+}
+
+/* 14. DIVIDERS
+   Use a subtle blue line between page sections. */
+hr {
+    border-color: #BAE6FD;
+}
+
+/* 15. ALERT MESSAGES
+   Round the corners of success, warning, and error messages. */
+[data-testid="stAlert"] {
+    border-radius: 10px;
+}
+
+/* 16. FORMS
+   Give the Risk Checker form a white card appearance. */
+[data-testid="stForm"] {
+    background-color: #FFFFFF;
+    border: 1px solid #BAE6FD;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* 17. CHECKBOXES
+   Set checkbox labels to dark blue. */
+[data-testid="stCheckbox"] label {
+    color: #123B5D;
+}
+
+/* 18. EXPANDERS
+   Style expandable content with a white background. */
+[data-testid="stExpander"] {
+    background-color: #FFFFFF;
+    border: 1px solid #BAE6FD;
+    border-radius: 10px;
+}
+
+/* 19. DATAFRAME AND TABLE TEXT
+   Use dark blue for readable table text where supported. */
+[data-testid="stDataFrame"] [role="grid"] {
+    color: #123B5D;
+}
+
+/* 20. RESPONSIVE LAYOUT
+   Slightly reduce metric values on smaller screens. */
+@media (max-width: 768px) {
+    [data-testid="stMetricValue"] {
+        font-size: 22px;
+    }
+
+    [data-testid="stMetric"] {
+        padding: 12px;
+    }
+}
