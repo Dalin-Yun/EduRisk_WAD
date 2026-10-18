@@ -15,8 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-
-# 2. LOAD CSS
+# LOAD CSS
 def load_css():
     css_path = Path(__file__).resolve().parent / "style.css"
 
@@ -26,11 +25,9 @@ def load_css():
     else:
         st.warning(f"CSS file not found: {css_path.name}. Using Streamlit's default styling.")
 
-
 load_css()
 
-
-# 3. LOAD STUDENT DATA
+# 2. LOAD STUDENT DATA
 @st.cache_data
 def load_student_data():
     csv_path = Path(__file__).resolve().parent / "students.csv"
@@ -41,18 +38,15 @@ def load_student_data():
 
     return pd.read_csv(csv_path)
 
-
 student_df = load_student_data()
 
-
-# 4. RISK LEVEL FUNCTION
+# 3. RISK LEVEL FUNCTION
 def get_risk_level(score, attendance):
     if score < 60 or attendance < 60:
         return "High Risk"
     elif score < 75 or attendance < 75:
         return "Medium Risk"
     return "Low Risk"
-
 
 # Add risk level to dataset
 required_columns = {"Student Name", "Score", "Attendance", "Course"}
@@ -67,7 +61,6 @@ student_df["Risk Level"] = student_df.apply(
     axis=1,
 )
 
-
 # Colour the Risk Level column in tables (CSS cannot style Streamlit's table cells)
 def color_risk(value):
     colors = {
@@ -77,10 +70,8 @@ def color_risk(value):
     }
     return colors.get(value, "")
 
-
 def styled_table(df):
     return df.style.map(color_risk, subset=["Risk Level"]).hide(axis="index")
-
 
 # Bar chart helper: Altair lets us set Times New Roman inside the chart
 def bar_chart(data, x_col, y_col, color, angle=0):
@@ -108,22 +99,20 @@ def bar_chart(data, x_col, y_col, color, angle=0):
     )
     return chart
 
-
-# 5. SUMMARY STATISTICS
+# 4. SUMMARY STATISTICS
 total_students = len(student_df)
 average_score = student_df["Score"].mean()
 average_attendance = student_df["Attendance"].mean()
 high_risk_students = int((student_df["Risk Level"] == "High Risk").sum())
 
-
-# 6. SIDEBAR NAVIGATION
+# 5. SIDEBAR NAVIGATION
 # Emojis are added only for display (format_func), so the page names below stay unchanged.
 PAGE_LABELS = {
-    "Home": "🏠 Home",
-    "Dashboard": "📊 Dashboard",
-    "Student Data": "🗂️ Student Data",
-    "Risk Checker": "🔍 Risk Checker",
-    "About": "ℹ️ About",
+    "Home": " Home",
+    "Dashboard": " Dashboard",
+    "Student Data": " Student Data",
+    "Risk Checker": " Risk Checker",
+    "About": " About",
 }
 
 with st.sidebar:
@@ -138,8 +127,7 @@ with st.sidebar:
         label_visibility="visible",
     )
 
-
-# 7. HOME PAGE
+# 6. HOME PAGE
 if selected_page == "Home":
     st.title("🎓 EduRisk Analytics")
     st.subheader("Frontend Prototype with CSV Data Loading")
@@ -156,8 +144,7 @@ if selected_page == "Home":
         "not label or punish them."
     )
 
-
-# 8. DASHBOARD PAGE
+# 7. DASHBOARD PAGE
 elif selected_page == "Dashboard":
     st.title("📊 Dashboard Prototype")
     st.write(
@@ -279,8 +266,7 @@ elif selected_page == "Student Data":
         mime="text/csv",
     )
 
-
-# 10. RISK CHECKER PAGE
+# 9. RISK CHECKER PAGE
 elif selected_page == "Risk Checker":
     st.title("🔍 Single Student Risk Checker")
     st.write("Enter one student's score and attendance to estimate their current risk category.")
@@ -322,8 +308,7 @@ elif selected_page == "Risk Checker":
             "This result follows the app's simple score/attendance rules; it is not a diagnosis or a complete assessment of a student."
         )
 
-
-# 11. ABOUT PAGE
+# 10. ABOUT PAGE
 else:
     st.title("ℹ️ About")
     st.write(
