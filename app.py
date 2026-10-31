@@ -178,11 +178,11 @@ def bar_chart(data, x_col, y_col, color="#247A6B", angle=0):
 # 7. SIDEBAR NAVIGATION
 # Keep the actual page names unchanged; emojis are only for display.
 PAGE_LABELS = {
-    "Home": "🏠 Home",
-    "Dashboard": "📊 Dashboard",
-    "Student Data": "📋 Student Data",
-    "Risk Checker": "🔎 Risk Checker",
-    "About": "ℹ️ About",
+    "Home": " Home",
+    "Dashboard": " Dashboard",
+    "Student Data": " Student Data",
+    "Risk Checker": " Risk Checker",
+    "About": " About",
 }
 
 with st.sidebar:
