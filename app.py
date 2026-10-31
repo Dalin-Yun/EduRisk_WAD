@@ -1,4 +1,5 @@
 # EduRisk Analytics — Student Performance & Risk Analysis
+# Lab 04: Forms, Validation, and Session State
 
 from pathlib import Path
 
@@ -9,84 +10,158 @@ import streamlit as st
 
 # 1. PAGE CONFIGURATION
 st.set_page_config(
-    page_title="EduRisk Analytics | Lab 03",
+    page_title="EduRisk Analytics - Lab 04",
     page_icon="🎓",
     layout="wide",
-    initial_sidebar_state="expanded",
 )
+
 
 # LOAD CSS
 def load_css():
+    """Load style.css from the same folder as app.py."""
     css_path = Path(__file__).resolve().parent / "style.css"
 
     if css_path.is_file():
         css = css_path.read_text(encoding="utf-8")
         st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
     else:
-        st.warning(f"CSS file not found: {css_path.name}. Using Streamlit's default styling.")
+        # The app still works if the optional stylesheet is missing.
+        st.warning(
+            f"CSS file not found: {css_path.name}. "
+            "Using Streamlit's default styling."
+        )
+
 
 load_css()
 
+
 # 2. LOAD STUDENT DATA
 @st.cache_data
-def load_student_data():
-    csv_path = Path(__file__).resolve().parent / "students.csv"
+def load_student_data(file_path):
+    """Read the CSV file and cache it until the file changes."""
+    return pd.read_csv(file_path)
 
-    if not csv_path.is_file():
-        st.error(f"Student data file not found: {csv_path.name}")
-        st.stop()
 
-    return pd.read_csv(csv_path)
+DATA_PATH = Path(__file__).resolve().parent / "students.csv"
 
-student_df = load_student_data()
+if not DATA_PATH.is_file():
+    st.error("students.csv was not found. Please place it in the same folder as app.py.")
+    st.stop()
 
-# 3. RISK LEVEL FUNCTION
+try:
+    student_df = load_student_data(str(DATA_PATH))
+except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError) as error:
+    st.error(f"Could not read students.csv. Please check the file format. Details: {error}")
+    st.stop()
+
+
+# 3. CHECK DATA AND CALCULATE RISK LEVELS
+required_columns = {"Student Name", "Score", "Attendance", "Course"}
+missing_columns = required_columns.difference(student_df.columns)
+
+if missing_columns:
+    st.error(
+        "Missing required column(s) in students.csv: "
+        + ", ".join(sorted(missing_columns))
+    )
+    st.stop()
+
+# Convert score and attendance to numeric values so calculations are reliable.
+for column in ("Score", "Attendance"):
+    student_df[column] = pd.to_numeric(student_df[column], errors="coerce")
+
+if student_df[["Score", "Attendance"]].isna().any().any():
+    st.error(
+        "The Score and Attendance columns must contain numeric values. "
+        "Please fix empty or non-numeric values in students.csv."
+    )
+    st.stop()
+
+if not student_df["Score"].between(0, 100).all():
+    st.error("Every Score value in students.csv must be between 0 and 100.")
+    st.stop()
+
+if not student_df["Attendance"].between(0, 100).all():
+    st.error("Every Attendance value in students.csv must be between 0 and 100.")
+    st.stop()
+
+
 def get_risk_level(score, attendance):
+    """Apply the simple score/attendance rules used in this lab."""
     if score < 60 or attendance < 60:
         return "High Risk"
     elif score < 75 or attendance < 75:
         return "Medium Risk"
     return "Low Risk"
 
-# Add risk level to dataset
-required_columns = {"Student Name", "Score", "Attendance", "Course"}
-missing_columns = required_columns.difference(student_df.columns)
 
-if missing_columns:
-    st.error("Missing required column(s) in students.csv: " + ", ".join(sorted(missing_columns)))
-    st.stop()
-
+# Add a risk label to each row in the dataset.
 student_df["Risk Level"] = student_df.apply(
     lambda row: get_risk_level(row["Score"], row["Attendance"]),
     axis=1,
 )
 
-# Colour the Risk Level column in tables (CSS cannot style Streamlit's table cells)
+
+# 4. INITIALIZE SESSION STATE
+# Session State keeps recent checks across Streamlit reruns in this browser session.
+if "risk_history" not in st.session_state:
+    st.session_state["risk_history"] = []
+
+if "latest_risk_result" not in st.session_state:
+    st.session_state["latest_risk_result"] = None
+
+
+# 5. TABLE STYLING HELPERS
 def color_risk(value):
+    """Return a background and text color for each risk category."""
     colors = {
-        "High Risk": "background-color:#FEE2E2; color:#991B1B",
-        "Medium Risk": "background-color:#FEF3C7; color:#854D0E",
-        "Low Risk": "background-color:#DCFCE7; color:#166534",
+        "High Risk": "background-color: #FEE2E2; color: #991B1B;",
+        "Medium Risk": "background-color: #FEF3C7; color: #854D0E;",
+        "Low Risk": "background-color: #DCFCE7; color: #166534;",
     }
     return colors.get(value, "")
 
-def styled_table(df):
-    return df.style.map(color_risk, subset=["Risk Level"]).hide(axis="index")
 
-# Bar chart helper: Altair lets us set Times New Roman inside the chart
-def bar_chart(data, x_col, y_col, color, angle=0):
+def styled_table(dataframe):
+    """Style the Risk Level column when it is present."""
+    if "Risk Level" not in dataframe.columns:
+        return dataframe
+    return dataframe.style.map(color_risk, subset=["Risk Level"]).hide(axis="index")
+
+
+# 6. CHART HELPER
+def bar_chart(data, x_col, y_col, color="#247A6B", angle=0):
+    """Create a consistently styled bar chart with Altair."""
     chart = (
         alt.Chart(data)
-        .mark_bar(color=color, cornerRadiusTopLeft=5, cornerRadiusTopRight=5)
+        .mark_bar(
+            color=color,
+            cornerRadiusTopLeft=5,
+            cornerRadiusTopRight=5,
+        )
         .encode(
             x=alt.X(
                 f"{x_col}:N",
                 sort=None,
                 title=None,
-                axis=alt.Axis(labelAngle=angle, labelOverlap=False, labelLimit=200),
+                axis=alt.Axis(
+                    labelAngle=-90,
+                    labelAlign="right",
+                    labelFontSize=11,
+                    labelPadding=8,
+                    ticks=False,
+                ),
             ),
-            y=alt.Y(f"{y_col}:Q", title=y_col, scale=alt.Scale(domainMin=0), axis=alt.Axis(tickMinStep=1)),
-            tooltip=[alt.Tooltip(f"{x_col}:N"), alt.Tooltip(f"{y_col}:Q")],
+            y=alt.Y(
+                f"{y_col}:Q",
+                title=y_col,
+                scale=alt.Scale(domainMin=0),
+                axis=alt.Axis(tickMinStep=1),
+            ),
+            tooltip=[
+                alt.Tooltip(f"{x_col}:N"),
+                alt.Tooltip(f"{y_col}:Q"),
+            ],
         )
         .properties(height=300)
         .configure(font="Times New Roman")
@@ -99,20 +174,15 @@ def bar_chart(data, x_col, y_col, color, angle=0):
     )
     return chart
 
-# 4. SUMMARY STATISTICS
-total_students = len(student_df)
-average_score = student_df["Score"].mean()
-average_attendance = student_df["Attendance"].mean()
-high_risk_students = int((student_df["Risk Level"] == "High Risk").sum())
 
-# 5. SIDEBAR NAVIGATION
-# Emojis are added only for display (format_func), so the page names below stay unchanged.
+# 7. SIDEBAR NAVIGATION
+# Keep the actual page names unchanged; emojis are only for display.
 PAGE_LABELS = {
-    "Home": " Home",
-    "Dashboard": " Dashboard",
-    "Student Data": " Student Data",
-    "Risk Checker": " Risk Checker",
-    "About": " About",
+    "Home": "🏠 Home",
+    "Dashboard": "📊 Dashboard",
+    "Student Data": "📋 Student Data",
+    "Risk Checker": "🔎 Risk Checker",
+    "About": "ℹ️ About",
 }
 
 with st.sidebar:
@@ -124,83 +194,81 @@ with st.sidebar:
         "Select Page",
         list(PAGE_LABELS.keys()),
         format_func=lambda page: PAGE_LABELS[page],
-        label_visibility="visible",
     )
 
-# 6. HOME PAGE
+
+# 8. HOME PAGE
 if selected_page == "Home":
     st.title("🎓 EduRisk Analytics")
-    st.subheader("Frontend Prototype with CSV Data Loading")
-    st.write("Welcome to Lab 03.")
+    st.subheader("Reliable Risk Checker with Forms and Session State")
+    st.write("Welcome to Lab 04.")
     st.write(
-        "In this lab, the app loads student data from students.csv "
-        "using Pandas instead of storing data directly inside app.py."
+        "This app improves the Risk Checker page using Streamlit forms, "
+        "input validation, and session state."
     )
+    st.success("Lab 04 app is running successfully!")
 
-    st.success("✅ Lab 03 app is running successfully!")
 
-    st.info(
-        "💡 Ethics Reminder: Academic monitoring should support students, "
-        "not label or punish them."
-    )
-
-# 7. DASHBOARD PAGE
+# 9. DASHBOARD PAGE
 elif selected_page == "Dashboard":
-    st.title("📊 Dashboard Prototype")
+    st.title("Dashboard Prototype")
     st.write(
-        "A quick overview of student scores, attendance, course distribution, and academic risk."
+        "This dashboard gives a quick overview of student performance "
+        "using data loaded from students.csv."
     )
+
+    total_students = len(student_df)
+    average_score = student_df["Score"].mean()
+    average_attendance = student_df["Attendance"].mean()
+    high_risk_students = int((student_df["Risk Level"] == "High Risk").sum())
 
     st.subheader("Dashboard Metrics")
     col1, col2, col3, col4 = st.columns(4)
 
-    with col1:
-        st.metric("Total Students", f"{total_students:,}")
+    col1.metric("Students", total_students)
+    col2.metric("Average Score", f"{average_score:.2f}")
+    col3.metric("Average Attendance", f"{average_attendance:.2f}%")
+    col4.metric("High Risk", high_risk_students)
 
-    with col2:
-        st.metric("Average Score", f"{average_score:.1f}" if pd.notna(average_score) else "N/A")
-
-    with col3:
-        st.metric(
-            "Average Attendance",
-            f"{average_attendance:.1f}%" if pd.notna(average_attendance) else "N/A",
-        )
-
-    with col4:
-        st.metric("High Risk", f"{high_risk_students:,}")
-
-    st.divider()
     st.subheader("Student Records")
-    st.caption("Student records loaded from students.csv, including the calculated risk level.")
+    st.dataframe(styled_table(student_df), use_container_width=True)
 
-    st.table(styled_table(student_df))
-
-    st.divider()
-    st.subheader("Student Performance Charts")
-    chart_col1, chart_col2 = st.columns(2, gap="large")
+    st.subheader("Charts")
+    chart_col1, chart_col2 = st.columns(2)
 
     with chart_col1:
-        st.markdown("**Student Score Chart**")
-        st.caption("Compare scores across students.")
-        score_chart = student_df[["Student Name", "Score"]]
+        st.write("Student Score Chart")
+        score_chart_data = student_df[["Student Name", "Score"]].copy()
         st.altair_chart(
-            bar_chart(score_chart, "Student Name", "Score", "#38BDF8", angle=-90),
+            bar_chart(score_chart_data, "Student Name", "Score", color="#247A6B"),
             use_container_width=True,
         )
 
     with chart_col2:
-        st.markdown("**Course Count**")
-        st.caption("See how students are distributed across courses.")
-        course_count = student_df["Course"].value_counts().rename_axis("Course").reset_index(name="Students")
+        st.write("Students by Course")
+        course_count = (
+            student_df["Course"]
+            .value_counts()
+            .rename_axis("Course")
+            .reset_index(name="Students")
+        )
         st.altair_chart(
-            bar_chart(course_count, "Course", "Students", "#176B9A", angle=-90),
+            bar_chart(course_count, "Course", "Students", color="#D49A36", angle=-30),
             use_container_width=True,
         )
 
-    st.markdown("**Risk Level Count**")
-    st.caption("Each risk category has a distinct color for easier comparison.")
+    st.info(
+        "Ethics Reminder: Academic monitoring should support students, "
+        "not label or punish them."
+    )
 
-    risk_order = ["Low Risk", "Medium Risk", "High Risk"]
+# Show the total number of students in each risk category.
+    st.markdown("#### Students by Risk Level")
+
+    risk_order = ["High Risk", "Medium Risk", "Low Risk"]
+    risk_colors = ["#DC2626", "#EAB308", "#16A34A"]
+
+    # Keep all three categories visible, even if a category has zero students.
     risk_count = (
         student_df["Risk Level"]
         .value_counts()
@@ -209,130 +277,185 @@ elif selected_page == "Dashboard":
         .reset_index(name="Students")
     )
 
-    risk_colors = alt.Scale(
-        domain=["High Risk", "Medium Risk", "Low Risk"],
-        range=["#DC2626", "#A16207", "#16A34A"],
-    )
-
     risk_chart = (
         alt.Chart(risk_count)
-        .mark_bar(cornerRadiusTopLeft=5, cornerRadiusTopRight=5)
+        .mark_bar(cornerRadiusEnd=6, size=34)
         .encode(
-            x=alt.X("Risk Level:N", sort=risk_order, title=None, axis=alt.Axis(labelAngle=0)),
-            y=alt.Y("Students:Q", title="Number of Students", scale=alt.Scale(domainMin=0)),
-            color=alt.Color("Risk Level:N", scale=risk_colors, legend=None),
+            x=alt.X(
+                "Students:Q",
+                title="Number of Students",
+                scale=alt.Scale(domainMin=0),
+                axis=alt.Axis(
+                    tickMinStep=1,
+                    grid=True,
+                    gridOpacity=0.22,
+                ),
+            ),
+            y=alt.Y(
+                "Risk Level:N",
+                title=None,
+                sort=risk_order,
+                axis=alt.Axis(
+                    labelFontSize=13,
+                    ticks=False,
+                ),
+            ),
+            color=alt.Color(
+                "Risk Level:N",
+                scale=alt.Scale(
+                    domain=risk_order,
+                    range=risk_colors,
+                ),
+                legend=None,
+            ),
             tooltip=[
-                alt.Tooltip("Risk Level:N", title="Risk Category"),
-                alt.Tooltip("Students:Q", title="Students"),
+                alt.Tooltip("Risk Level:N", title="Risk Level"),
+                alt.Tooltip("Students:Q", title="Total Students"),
             ],
         )
-        .properties(height=300)
-        .configure(font="Times New Roman")
-        .configure_axis(labelFont="Times New Roman", titleFont="Times New Roman", labelFontSize=13, titleFontSize=14)
+        .properties(
+            height=190,
+            padding={
+                "left": 4,
+                "right": 12,
+                "top": 8,
+                "bottom": 8,
+            },
+        )
+        .configure(font="Arial")
+        .configure_view(strokeOpacity=0)
+        .configure_axis(
+            labelFont="Arial",
+            titleFont="Arial",
+            labelColor="#536579",
+            titleColor="#334155",
+            titleFontSize=12,
+            domain=False,
+        )
     )
+
     st.altair_chart(risk_chart, use_container_width=True)
 
-    st.info(
-        "💡 **Ethics reminder:** Use risk indicators to guide timely support and conversations. "
-        "They should not be used to label, shame, or punish students."
-    )
-
-
-# 9. STUDENT DATA PAGE
+# 10. STUDENT DATA PAGE
 elif selected_page == "Student Data":
-    st.title("🗂️ Student Data")
-    st.write("Inspect the dataset loaded from `students.csv`.")
+    st.title("Student Data")
+    st.write("Inspect the dataset loaded from students.csv.")
 
-    data_col1, data_col2 = st.columns(2)
-    with data_col1:
-        st.metric("Rows", f"{student_df.shape[0]:,}")
-    with data_col2:
-        st.metric("Columns (including Risk Level)", f"{student_df.shape[1]:,}")
+    st.subheader("Data Inspection")
+    st.write("Rows and columns:", student_df.shape)
+    st.write("Column names:", student_df.columns.tolist())
 
-    st.subheader("Column Names")
-    st.code(", ".join(student_df.columns.astype(str)), language=None)
-
-    with st.expander("Preview the first five rows", expanded=True):
-        st.table(styled_table(student_df.head()))
+    st.subheader("First 5 Rows")
+    st.dataframe(styled_table(student_df.head()), use_container_width=True)
 
     st.subheader("Full Student Dataset")
-    st.table(styled_table(student_df))
+    st.dataframe(styled_table(student_df), use_container_width=True)
 
-    csv_bytes = student_df.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        "⬇️ Download student data (CSV)",
-        data=csv_bytes,
-        file_name="student_data_with_risk.csv",
-        mime="text/csv",
+
+# 11. RISK CHECKER PAGE
+elif selected_page == "Risk Checker":
+    st.title("Single Student Risk Checker")
+    st.write(
+        "Enter student information to check risk level. "
+        "The result is based on score and attendance."
     )
 
-# 9. RISK CHECKER PAGE
-elif selected_page == "Risk Checker":
-    st.title("🔍 Single Student Risk Checker")
-    st.write("Enter one student's score and attendance to estimate their current risk category.")
+    st.info(
+        "This tool is for academic support. Risk results should help students, "
+        "not label or punish them."
+    )
 
-    with st.form("risk_checker_form", clear_on_submit=False):
-        input_name = st.text_input("Student Name", placeholder="Enter student name")
-        input_score = st.number_input("Score", min_value=0.0, max_value=100.0, value=50.0, step=1.0)
+    # A form waits until Check Risk is clicked before processing the inputs.
+    with st.form("risk_checker_form"):
+        input_name = st.text_input("Student Name")
+        input_score = st.number_input("Score", min_value=0, max_value=100, value=50)
         input_attendance = st.number_input(
-            "Attendance (%)",
-            min_value=0.0,
-            max_value=100.0,
-            value=50.0,
-            step=1.0,
+            "Attendance", min_value=0, max_value=100, value=50
         )
         submitted = st.form_submit_button("Check Risk", use_container_width=True)
 
+    # Validate first; only calculate and save when the name is valid.
     if submitted:
-        risk_result = get_risk_level(input_score, input_attendance)
+        if input_name.strip() == "":
+            st.session_state["latest_risk_result"] = None
+            st.warning("Please enter the student name.")
+        else:
+            risk_result = get_risk_level(input_score, input_attendance)
 
+            result = {
+                "Student Name": input_name.strip(),
+                "Score": input_score,
+                "Attendance": input_attendance,
+                "Risk Level": risk_result,
+            }
+
+            # Save the successful check once; the history survives reruns.
+            st.session_state["risk_history"].append(result)
+            st.session_state["latest_risk_result"] = result
+
+    # Show the latest successful result even after unrelated reruns.
+    latest_result = st.session_state["latest_risk_result"]
+    if latest_result is not None:
         st.divider()
         st.subheader("Assessment Summary")
+
         result_col1, result_col2, result_col3 = st.columns(3)
+        result_col1.metric("Student", latest_result["Student Name"])
+        result_col2.metric("Score", f'{latest_result["Score"]:g}/100')
+        result_col3.metric("Attendance", f'{latest_result["Attendance"]:g}%')
 
-        with result_col1:
-            st.metric("Student", input_name.strip() or "Not provided")
-        with result_col2:
-            st.metric("Score", f"{input_score:g}/100")
-        with result_col3:
-            st.metric("Attendance", f"{input_attendance:g}%")
-
+        risk_result = latest_result["Risk Level"]
         if risk_result == "Low Risk":
             st.success("🟢 Risk Level: Low Risk")
+            st.write("Student appears on track.")
         elif risk_result == "Medium Risk":
             st.warning("🟡 Risk Level: Medium Risk")
+            st.write("Monitor progress and provide guidance.")
         else:
             st.error("🔴 Risk Level: High Risk")
+            st.write("Student may need additional support.")
 
         st.caption(
-            "This result follows the app's simple score/attendance rules; it is not a diagnosis or a complete assessment of a student."
+            "This result follows the app's simple score/attendance rules; "
+            "it is not a diagnosis or a complete assessment of a student."
         )
 
-# 10. ABOUT PAGE
-else:
-    st.title("ℹ️ About")
-    st.write(
-        "EduRisk Analytics is a Lab 03 prototype for Web App Development for Data Science."
+    # Keep history visible independently of the submit button.
+    st.divider()
+    st.subheader("Recent Risk Checks")
+
+    if st.session_state["risk_history"]:
+        history_df = pd.DataFrame(st.session_state["risk_history"])
+        st.dataframe(styled_table(history_df), use_container_width=True)
+
+        # Keep Clear History outside the form so it works independently.
+        if st.button("Clear History"):
+            st.session_state["risk_history"] = []
+            st.session_state["latest_risk_result"] = None
+            st.success("Risk check history cleared.")
+            st.rerun()
+    else:
+        st.info("No risk checks yet.")
+
+    st.warning(
+        "Ethics Reminder: Risk results should be used as guidance for support, "
+        "not as a final judgment about a student."
     )
 
-    st.subheader("Project Information")
-    info_col1, info_col2 = st.columns(2)
 
-    with info_col1:
-        st.markdown("**Course**")
-        st.write("Web App Development for Data Science")
-        st.markdown("**Project Theme**")
-        st.write("EduRisk Analytics")
+# 12. ABOUT PAGE
+else:
+    st.title("About")
+    st.write("This app is part of Lab 04.")
+    st.write("Course: Web App Development for Data Science")
+    st.write("Project Theme: EduRisk Analytics")
+    st.write("Topic: Forms, Validation, and Session State")
 
-    with info_col2:
-        st.markdown("**Lab**")
-        st.write("Lab 03")
-        st.markdown("**Main Features**")
-        st.write("CSV data loading, layout, charts, and student risk checking")
-
-    st.divider()
-    st.subheader("Responsible Use")
     st.info(
-        "🤝 Academic risk indicators should be interpreted carefully and used to support "
-        "student learning, wellbeing, and success—not to make unfair or automatic decisions."
+        "This version improves the Risk Checker page using Streamlit forms, "
+        "input validation, and session state."
+    )
+    st.warning(
+        "Student risk information should be used responsibly to support "
+        "learning and student success."
     )
