@@ -1,7 +1,21 @@
-/* EDURISK ANALYTICS: Student Performance and Risk Analysis */
+/*
+=============================================================================
+EDURISK ANALYTICS — LAB 05
+Student Performance and Risk Analysis
 
-/* 1. COLOR PALETTE
-   Reusable variables keep the design consistent and easy to maintain. */
+Design goals:
+- Keep the project simple and appropriate for a university lab.
+- Use Times New Roman throughout the interface.
+- Use dark blue, sky blue, and white as the main theme.
+- Make dashboard metrics, tables, forms, and charts easier to read.
+- Improve spacing and contrast without changing the app layout or logic.
+=============================================================================
+*/
+
+/* --------------------------------------------------------------------------
+   1. COLOR PALETTE
+   Reusable color variables keep the design consistent and easy to maintain.
+   -------------------------------------------------------------------------- */
 :root {
     --dark-blue: #123B5D;
     --deep-blue: #0B2942;
@@ -14,7 +28,7 @@
     --muted-text: #526779;
     --border-color: #BAE6FD;
 
-    /* Risk colors distinguish categories in tables and dashboard results. */
+    /* Risk colors are used to distinguish categories in the dashboard. */
     --high-risk: #DC2626;
     --high-risk-background: #FEE2E2;
     --medium-risk: #A16207;
@@ -23,8 +37,11 @@
     --low-risk-background: #DCFCE7;
 }
 
-/* 2. GLOBAL FONT AND PAGE BACKGROUND
-   Apply Times New Roman to app text while preserving Streamlit's icon fonts. */
+/* --------------------------------------------------------------------------
+   2. GLOBAL FONT AND PAGE BACKGROUND
+   Times New Roman is applied to normal text and controls across the app.
+   Streamlit icon fonts are preserved separately below.
+   -------------------------------------------------------------------------- */
 html,
 body,
 .stApp,
@@ -56,13 +73,19 @@ option {
     font-style: normal !important;
 }
 
-/* 3. MAIN CONTENT SPACING */
+/* --------------------------------------------------------------------------
+   3. MAIN CONTENT SPACING
+   Consistent padding keeps the page from feeling crowded on desktop.
+   -------------------------------------------------------------------------- */
 section.main > div {
     max-width: 1600px;
     padding: 1.7rem 2rem 2.4rem;
 }
 
-/* 4. TYPOGRAPHY */
+/* --------------------------------------------------------------------------
+   4. TYPOGRAPHY
+   Titles are larger and darker; body text remains comfortable to read.
+   -------------------------------------------------------------------------- */
 h1,
 h2,
 h3,
@@ -107,8 +130,11 @@ li {
     line-height: 1.45;
 }
 
-/* 5. SIDEBAR NAVIGATION
-   A dark-blue sidebar contrasts with the light main page. */
+/* --------------------------------------------------------------------------
+   5. SIDEBAR NAVIGATION
+   A solid dark-blue sidebar contrasts with the light main page.
+   White text improves readability for navigation and labels.
+   -------------------------------------------------------------------------- */
 section[data-testid="stSidebar"] {
     background-color: var(--dark-blue);
     border-right: 1px solid var(--deep-blue);
@@ -137,7 +163,7 @@ section[data-testid="stSidebar"] label {
     font-size: 16px !important;
 }
 
-/* Hover feedback helps users identify sidebar navigation items. */
+/* A subtle hover background helps users identify the navigation item. */
 section[data-testid="stSidebar"] [data-testid="stRadio"] label {
     padding: 0.35rem 0.5rem;
     border-radius: 8px;
@@ -148,7 +174,11 @@ section[data-testid="stSidebar"] [data-testid="stRadio"] label:hover {
     background-color: #245779;
 }
 
-/* 6. DASHBOARD METRIC CARDS */
+/* --------------------------------------------------------------------------
+   6. DASHBOARD METRIC CARDS
+   All cards share the same shape, spacing, and typography.
+   A small top border gives each KPI a distinct but coordinated accent.
+   -------------------------------------------------------------------------- */
 [data-testid="stMetric"] {
     background-color: var(--card-background);
     border: 1px solid var(--border-color);
@@ -158,20 +188,24 @@ section[data-testid="stSidebar"] [data-testid="stRadio"] label:hover {
     box-shadow: 0 2px 8px rgba(18, 59, 93, 0.05);
 }
 
-/* Accent colors distinguish the four dashboard KPI cards. */
-div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-child(1) [data-testid="stMetric"] {
+/* Accent colors are applied in order to the four metric columns. */
+div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"])
+> div:nth-child(1) [data-testid="stMetric"] {
     border-top-color: #38BDF8;
 }
 
-div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-child(2) [data-testid="stMetric"] {
+div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"])
+> div:nth-child(2) [data-testid="stMetric"] {
     border-top-color: #176B9A;
 }
 
-div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-child(3) [data-testid="stMetric"] {
+div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"])
+> div:nth-child(3) [data-testid="stMetric"] {
     border-top-color: #0D9488;
 }
 
-div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-child(4) [data-testid="stMetric"] {
+div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"])
+> div:nth-child(4) [data-testid="stMetric"] {
     border-top-color: #DC2626;
 }
 
@@ -187,8 +221,11 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-chi
     font-weight: 700 !important;
 }
 
-/* 7. BUTTONS
-   Main buttons use blue; hover states provide clear feedback. */
+/* --------------------------------------------------------------------------
+   7. BUTTONS
+   Primary buttons use blue; download buttons use sky blue for distinction.
+   Hover states provide feedback without adding unnecessary decoration.
+   -------------------------------------------------------------------------- */
 .stButton > button,
 [data-testid="stFormSubmitButton"] > button {
     background-color: var(--primary-blue);
@@ -224,7 +261,10 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-chi
     border-color: var(--primary-blue);
 }
 
-/* 8. INPUTS AND SELECT BOXES */
+/* --------------------------------------------------------------------------
+   8. INPUTS AND SELECT BOXES
+   Rounded corners make the form controls match the rest of the interface.
+   -------------------------------------------------------------------------- */
 .stTextInput input,
 .stNumberInput input,
 .stTextArea textarea,
@@ -241,8 +281,10 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-chi
     box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
 }
 
-/* 9. FORMS
-   The Risk Checker form uses a white surface and light-blue border. */
+/* --------------------------------------------------------------------------
+   9. FORMS
+   The Risk Checker form uses a white surface and light-blue border.
+   -------------------------------------------------------------------------- */
 [data-testid="stForm"] {
     background-color: var(--card-background);
     border: 1px solid var(--border-color);
@@ -250,7 +292,11 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-chi
     padding: 18px;
 }
 
-/* 10. STUDENT DATA TABLES */
+/* --------------------------------------------------------------------------
+   10. STUDENT DATA TABLES
+   White table surfaces and light-blue headers separate headings from records.
+   These rules style table elements where Streamlit exposes them to CSS.
+   -------------------------------------------------------------------------- */
 [data-testid="stDataFrame"],
 [data-testid="stTable"] {
     background-color: #FFFFFF;
@@ -271,8 +317,11 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-chi
     font-family: "Times New Roman", Times, serif !important;
 }
 
-/* 11. CHART CONTAINERS
-   Chart colors are configured in Python; this section styles the frame. */
+/* --------------------------------------------------------------------------
+   11. CHART CONTAINERS
+   Subtle frames separate charts from the page background.
+   Actual chart colors are configured in Python, not by these CSS rules.
+   -------------------------------------------------------------------------- */
 [data-testid="stVegaLiteChart"],
 [data-testid="stArrowVegaLiteChart"],
 [data-testid="stPlotlyChart"],
@@ -285,7 +334,10 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div:nth-chi
     padding: 6px;
 }
 
-/* 12. ALERTS AND OTHER COMPONENTS */
+/* --------------------------------------------------------------------------
+   12. ALERTS AND OTHER COMPONENTS
+   Keep messages, checkboxes, expanders, and dividers visually consistent.
+   -------------------------------------------------------------------------- */
 [data-testid="stAlert"] {
     border-radius: 9px;
     padding: 10px 14px;
@@ -315,8 +367,10 @@ header[data-testid="stHeader"] {
     background-color: var(--page-background);
 }
 
-/* 13. RESPONSIVE DESIGN
-   Reduce spacing and font sizes on narrow screens. */
+/* --------------------------------------------------------------------------
+   13. RESPONSIVE DESIGN
+   Reduce padding and text sizes on narrower screens to prevent crowding.
+   -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
     section.main > div {
         padding: 1.1rem 0.9rem 1.7rem;
@@ -348,36 +402,91 @@ header[data-testid="stHeader"] {
     }
 }
 
-/* 14. DATAFRAME FONT
-   Apply Times New Roman to regular Streamlit tables and, where supported,
-   the Glide Data Grid used by st.dataframe(). */
-[data-testid="stDataFrame"],
-[data-testid="stDataFrame"] *,
-[data-testid="stTable"],
-[data-testid="stTable"] *,
-[data-testid="stDataEditor"],
-[data-testid="stDataEditor"] * {
-    font-family: "Times New Roman", Times, serif !important;
+
+
+/* --------------------------------------------------------------------------
+   14. LAB 05 DASHBOARD FILTERS
+   Light, simple surfaces make the new filters easier to identify.
+   -------------------------------------------------------------------------- */
+[data-testid="stSelectbox"],
+[data-testid="stSlider"] {
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    padding: 10px 12px 6px;
 }
 
-/* Streamlit's interactive dataframe uses Glide Data Grid in many versions.
-   These variables may be honored depending on the Streamlit version. */
-[data-testid="stDataFrame"],
-[data-testid="stDataEditor"] {
-    --gdg-font-family: "Times New Roman", Times, serif;
-    --gdg-header-font-style: 16px "Times New Roman", Times, serif;
-    --gdg-cell-font-style: 16px "Times New Roman", Times, serif;
-}
-
-/* Static Streamlit tables: style headers and cells directly. */
-[data-testid="stTable"] table,
-[data-testid="stTable"] th,
-[data-testid="stTable"] td {
-    font-family: "Times New Roman", Times, serif !important;
-    font-size: 16px !important;
-}
-
-[data-testid="stTable"] th {
+[data-testid="stSelectbox"] label,
+[data-testid="stSlider"] label {
     color: var(--dark-blue) !important;
     font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+[data-testid="stSlider"] [data-testid="stThumbValue"] {
+    color: var(--dark-blue);
+    font-weight: 700;
+}
+
+/* Keep dropdown controls consistent with the existing rounded inputs. */
+[data-baseweb="select"] > div {
+    border-radius: 7px;
+    border-color: var(--border-color);
+}
+
+/* --------------------------------------------------------------------------
+   15. SECTION HEADINGS
+   A small blue accent gives dashboard sections clearer structure.
+   -------------------------------------------------------------------------- */
+[data-testid="stMain"] h2 {
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-testid="stMain"] h3 {
+    margin-top: 0.35rem;
+}
+
+/* --------------------------------------------------------------------------
+   16. DASHBOARD TABLE AND CHART FINISH
+   Keep the same white surfaces with a subtle shadow.
+   -------------------------------------------------------------------------- */
+[data-testid="stDataFrame"],
+[data-testid="stTable"],
+[data-testid="stPlotlyChart"],
+[data-testid="stVegaLiteChart"] {
+    box-shadow: 0 2px 7px rgba(18, 59, 93, 0.045);
+}
+
+/* --------------------------------------------------------------------------
+   17. SLIDER AND FOCUS DETAILS
+   Use the existing blue palette for interactive controls.
+   -------------------------------------------------------------------------- */
+[data-testid="stSlider"] [role="slider"] {
+    border-color: var(--primary-blue);
+}
+
+[data-testid="stSelectbox"]:focus-within,
+[data-testid="stSlider"]:focus-within {
+    border-color: var(--sky-blue);
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.12);
+}
+
+/* Keep keyboard focus visible and consistent with the theme. */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--sky-blue);
+    outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   18. SMALL SCREEN FILTER SPACING
+   Prevent filter cards from feeling crowded on mobile screens.
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    [data-testid="stSelectbox"],
+    [data-testid="stSlider"] {
+        padding: 8px 10px 5px;
+    }
 }
